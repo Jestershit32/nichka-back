@@ -1,5 +1,6 @@
 import { body } from 'express-validator'
 
+
 export const registerValidation = [
     body("nickname", "Некорректная длина ника").isLength({ min: 3, max: 20 }),
     body("firstName", "Некорректная длина Имени").isLength({ min: 3, max: 15 }),
