@@ -3,7 +3,7 @@
     "name": "nichka",
     "builds": [
         {
-            "src": "server.js",
+            "src": "./server.js",
             "use": "@vercel/ncc"
         }
     ],
