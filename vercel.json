@@ -3,8 +3,8 @@
     "name": "nichka",
     "builds": [
         {
-            "src": "./server.js",
-            "use": "@vercel/ncc"
+            "src": "serverve.js",
+            "use": "@vercel/node"
         }
     ],
     "routes": [
