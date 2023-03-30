@@ -26,7 +26,6 @@ export default (dir) => {
 
 
         if (dir === "img") {
-
             if (file.mimetype === "image/png" ||
                 file.mimetype === "image/jpg" ||
                 file.mimetype === "image/jpeg") {
@@ -34,16 +33,11 @@ export default (dir) => {
             }
         }
         if (dir === "file") {
-
             if (file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
                 file.mimetype === "application/pdf" ||
                 file.mimetype === "application/vnd.oasis.opendocument.text") {
                 cb(null, true);
             }
-
-
-            cb(null, true);
-
         }
 
         cb(null, false);

@@ -4,17 +4,36 @@ import { validationResult } from "express-validator";
 export const getAll = async (req, res) => {
     try {
 
-        console.log(req.params.sortBy)
+        const inOnePage = req.params.value ? req.params.value : 10;
+        const page = req.params.page ? req.params.page : 1;
+
+        //  else {
+        let searchValue = req.params.searchValue !== "all" ? { title: { $regex: req.params.searchValue } } : {};
+        // }
+
+        if (req.params.searchValue.slice(0, 3) === "tag") {
+            searchValue = { tags: { $regex: req.params.searchValue.slice(3) } }
+        }
+
+        if (req.params.userID !== "all") {
+            if (req.params.userID.length === 24) {
+                searchValue.user = { _id: req.params.userID };
+            }
+        }
+        console.log(searchValue)
+        let one = req.params.searchValue.slice(1)
+        console.log(one)
+        const skipPage = (page - 1) * inOnePage;
 
         const sortBy = (req) => {
             switch (req.params.sortBy) {
                 case "new":
                     return ({
-                        createdAt: 1
+                        createdAt: -1
                     })
                 case "old":
                     return {
-                        createdAt: -1
+                        createdAt: 1
                     }
                 default:
                     return {
@@ -23,12 +42,13 @@ export const getAll = async (req, res) => {
             }
         }
 
-        const posts = await PostModel.find().sort(sortBy(req)).populate('user', ['nickname', 'firstName', 'lastName', 'avatarUrl', 'rule']).exec()
-
+        const posts = await PostModel.find(searchValue).skip(skipPage).limit(inOnePage).sort(sortBy(req)).populate('user', ['nickname', 'firstName', 'lastName', 'avatarUrl', 'rule']).exec()
+        const count = await PostModel.find(searchValue).count();
 
         res.status(200).json({
-
-            posts, success: true
+            countPages: Math.ceil(count / inOnePage),
+            posts,
+            success: true
         });
     } catch (err) {
         console.log(err)
@@ -70,12 +90,13 @@ export const remove = async (req, res) => {
     try {
         const postId = req.params.id
         let post = await PostModel.findOneAndDelete(
-            { _id: postId, })
+            { _id: postId, },
+            { returnDocument: 'after' },)
 
         console.log(post);
 
         res.status(200).json({
-            doc, success: true,
+            post, success: true,
         });
     }
     catch (err) {
@@ -96,14 +117,12 @@ export const create = async (req, res) => {
         if (!errors.isEmpty()) {
             return res.status(400).json(errors.array())
         }
-
-
         const doc = new PostModel({
             title: req.body.title,
             description: req.body.description,
             tags: req.body.tags,
-            viewsCount: req.body.viewsCount,
-            fileUrl: req.body.fileUrl,
+            viewsCount: 0,
+            fileUrl: "",
             user: req.userId
         })
         const post = await doc.save();
@@ -130,7 +149,7 @@ export const update = async (req, res) => {
         const postId = req.params.id
 
 
-        let doc = await PostModel.updateOne(
+        let doc = await PostModel.findOneAndUpdate(
             { _id: postId, },
             {
                 title: req.body.title,
@@ -139,13 +158,11 @@ export const update = async (req, res) => {
                 viewsCount: req.body.viewsCount,
                 fileUrl: req.body.fileUrl,
                 user: req.userId
-            },
+            }, { returnDocument: 'after' },
         )
         console.log(doc);
 
-        res.status(200).json({
-            success: true,
-        });
+        res.status(200).json({ post: doc, success: true });
     }
     catch (err) {
         console.log(err)

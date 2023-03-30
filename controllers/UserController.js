@@ -98,8 +98,7 @@ export const login = async (req, res) => {
                 expiresIn: '30d',
             },
         )
-        const { passwordHash, ...userDate } = user._doc;
-
+        const { passwordHash, favorites, ...userDate } = user._doc;
 
         res.json({
             ...userDate,
