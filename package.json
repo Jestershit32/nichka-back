@@ -11,11 +11,14 @@
   "name": "nichka-back",
   "version": "1.0.0",
   "main": "server.js",
+  "engines": {
+  "node":"18.x"},
   "type": "module",
   "devDependencies": {
     "nodemon": "^2.0.21"
   },
   "scripts": {
+    "start": "node server.js",
     "dev": "nodemon ./server.js"
   },
   "author": "me",
